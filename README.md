@@ -405,7 +405,7 @@ The frontend runs on `http://localhost:3000`.
 
 ---
 
-## 9. Key Engineering Highlights (Interview Talking Points)
+## 9. Key Engineering Highlights 
 
 - **Passwordless auth with OTP + Redis TTL** — avoids password storage/hashing entirely, reduces credential-leak risk surface
 - **Rate limiting via Redis keys with TTL** — prevents OTP spam without a separate rate-limiter library
@@ -419,19 +419,11 @@ The frontend runs on `http://localhost:3000`.
 
 ---
 
-## 10. Potential Extensions / Scaling Roadmap
 
-| Improvement | Why It Matters |
-|---|---|
-| **API Gateway** (Nginx / Express gateway) | Unified routing, centralized auth/rate-limiting, single entry point for the frontend |
-| **Redis Pub/Sub for socket state** | Current in-memory `userId → socketId` map only works on a single Chat service instance — Pub/Sub lets presence work across multiple horizontally-scaled instances |
-| **Cassandra for message storage** | Wide-column store suited for very high write throughput and time-ordered message history at scale |
-| **Kafka instead of RabbitMQ** | Higher throughput, replayable event log — useful if more async workflows (analytics, notifications) are added beyond OTP email |
-| **Consistent hashing for socket routing** | Needed once Chat service is scaled horizontally, to route a given user consistently to the instance holding their socket |
-| **Group chats & reactions** | Extends the current 1:1-only data model (`Chat.users` sized at 2) to N participants |
-| **End-to-end encryption** | Stronger privacy guarantee for message content at rest and in transit |
 
----
 
-## 11. License
-ISC
+
+
+
+
+
