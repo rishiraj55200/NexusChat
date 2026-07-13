@@ -1,17 +1,12 @@
 import amqp from "amqplib";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 export const startSendOtpConsumer = async () => {
   try {
-    const connection = await amqp.connect({
-      protocol: "amqp",
-      hostname: process.env.Rabbitmq_Host,
-      port: 5672,
-      username: process.env.Rabbitmq_Username,
-      password: process.env.Rabbitmq_Password,
-    });
+    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
 
     const channel = await connection.createChannel();
 
@@ -29,7 +24,7 @@ export const startSendOtpConsumer = async () => {
           const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 465,
-            secure: true, //for aws
+            secure: true,
             auth: {
               user: process.env.USER,
               pass: process.env.PASSWORD,
@@ -37,7 +32,7 @@ export const startSendOtpConsumer = async () => {
           });
 
           await transporter.sendMail({
-            from: "Chat app",
+            from: "Chat App",
             to,
             subject,
             text: body,
@@ -46,11 +41,11 @@ export const startSendOtpConsumer = async () => {
           console.log(`OTP mail sent to ${to}`);
           channel.ack(msg);
         } catch (error) {
-          console.log("Failed to send otp", error);
+          console.error("Failed to send OTP:", error);
         }
       }
     });
   } catch (error) {
-    console.log("Failed to start rabbitmq consumer", error);
+    console.error("Failed to start RabbitMQ consumer:", error);
   }
 };
