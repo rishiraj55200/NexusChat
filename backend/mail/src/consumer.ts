@@ -21,14 +21,15 @@ export const startSendOtpConsumer = async () => {
         try {
           const { to, subject, body } = JSON.parse(msg.content.toString());
 
-        const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+         const transporter = nodemailer.createTransport({
+  service: "gmail",
   auth: {
     user: process.env.USER,
     pass: process.env.PASSWORD,
   },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
           await transporter.sendMail({
