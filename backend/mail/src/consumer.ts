@@ -1,52 +1,47 @@
 import amqp from "amqplib";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const startSendOtpConsumer = async () => {
   try {
     const connection = await amqp.connect(process.env.RABBITMQ_URL!);
-
     const channel = await connection.createChannel();
 
     const queueName = "send-otp";
 
     await channel.assertQueue(queueName, { durable: true });
 
-    console.log("✅ Mail Service consumer started, listening for otp emails");
+    console.log("✅ Mail Service consumer started, listening for OTP emails");
 
     channel.consume(queueName, async (msg) => {
-      if (msg) {
-        try {
-          const { to, subject, body } = JSON.parse(msg.content.toString());
+      if (!msg) return;
 
-         const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.USER,
-    pass: process.env.PASSWORD,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+      try {
+        const { to, subject, body } = JSON.parse(msg.content.toString());
 
-          await transporter.sendMail({
-            from: "Chat App",
-            to,
-            subject,
-            text: body,
-          });
+        const { data, error } = await resend.emails.send({
+          from: "onboarding@resend.dev",
+          to,
+          subject,
+          text: body,
+        });
 
-          console.log(`OTP mail sent to ${to}`);
-          channel.ack(msg);
-        } catch (error) {
-          console.error("Failed to send OTP:", error);
+        if (error) {
+          console.error("❌ Resend Error:", error);
+          return;
         }
+
+        console.log("✅ Email Sent:", data);
+        channel.ack(msg);
+      } catch (err) {
+        console.error("❌ Failed to send OTP:", err);
       }
     });
-  } catch (error) {
-    console.error("Failed to start RabbitMQ consumer:", error);
+  } catch (err) {
+    console.error("❌ Failed to start RabbitMQ consumer:", err);
   }
 };
