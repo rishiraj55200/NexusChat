@@ -1,6 +1,6 @@
 "use client";
 import Loading from "@/components/Loading";
-import { useAppData, user_service } from "@/context/AppContext";
+import { useAppData } from "@/context/AppContext";
 import axios from "axios";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
