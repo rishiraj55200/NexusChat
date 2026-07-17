@@ -21,14 +21,24 @@ export const startSendOtpConsumer = async () => {
       if (!msg) return;
 
       try {
-        const { to, subject, body } = JSON.parse(msg.content.toString());
+       const { to, subject, body } = JSON.parse(msg.content.toString());
 
-        const { data, error } = await resend.emails.send({
-          from: "onboarding@resend.dev",
-          to,
-          subject,
-          text: body,
-        });
+console.log("📧 Sending OTP to:", to);
+
+const { data, error } = await resend.emails.send({
+  from: "onboarding@resend.dev",
+  to,
+  subject,
+  text: body,
+});
+
+if (error) {
+  console.error("❌ Resend Error:", error);
+  return;
+}
+
+console.log("✅ Email Sent:", data);
+channel.ack(msg);
 
         if (error) {
           console.error("❌ Resend Error:", error);
