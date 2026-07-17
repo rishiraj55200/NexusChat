@@ -21,7 +21,7 @@ export const startSendOtpConsumer = async () => {
       if (!msg) return;
 
       try {
-       const { to, subject, body } = JSON.parse(msg.content.toString());
+      const { to, subject, body } = JSON.parse(msg.content.toString());
 
 console.log("📧 Sending OTP to:", to);
 
@@ -34,6 +34,7 @@ const { data, error } = await resend.emails.send({
 
 if (error) {
   console.error("❌ Resend Error:", error);
+  channel.ack(msg); // Failed message ko bhi queue se hata do
   return;
 }
 
