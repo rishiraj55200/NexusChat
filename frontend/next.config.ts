@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  env: {
+    NEXT_PUBLIC_USER_SERVICE: process.env.NEXT_PUBLIC_USER_SERVICE,
+    NEXT_PUBLIC_CHAT_SERVICE: process.env.NEXT_PUBLIC_CHAT_SERVICE,
+  },
 };
 
 export default nextConfig;
