@@ -81,7 +81,7 @@ const VerifyOtp = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post(`${user_service}/api/v1/verify`, {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_USER_SERVICE}/api/v1/verify`, {
         email,
         otp: otpString,
       });
@@ -108,7 +108,7 @@ const VerifyOtp = () => {
     setResendLoading(true);
     setError("");
     try {
-      const { data } = await axios.post(`${user_service}/api/v1/login`, {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_USER_SERVICE}/api/v1/login`, {
         email,
       });
       toast.success(data.message);

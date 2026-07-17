@@ -11,11 +11,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-export const user_service =
-  process.env.NEXT_PUBLIC_USER_SERVICE!;
-
-export const chat_service =
-  process.env.NEXT_PUBLIC_CHAT_SERVICE!;
+// Removed exported constants for services to prevent Next.js build-time string replacement issues in chunks.
 
 export interface User {
   _id: string;
@@ -70,7 +66,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     try {
       const token = Cookies.get("token");
 
-      const { data } = await axios.get(`${user_service}/api/v1/me`, {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_USER_SERVICE}/api/v1/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +92,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   async function fetchChats() {
     const token = Cookies.get("token");
     try {
-      const { data } = await axios.get(`${chat_service}/api/v1/chat/all`, {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_CHAT_SERVICE}/api/v1/chat/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -114,7 +110,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const token = Cookies.get("token");
 
     try {
-      const { data } = await axios.get(`${user_service}/api/v1/user/all`, {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_USER_SERVICE}/api/v1/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
