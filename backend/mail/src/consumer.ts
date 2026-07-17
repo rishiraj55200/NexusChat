@@ -1,10 +1,18 @@
 import amqp from "amqplib";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export const startSendOtpConsumer = async () => {
   try {
@@ -21,35 +29,22 @@ export const startSendOtpConsumer = async () => {
       if (!msg) return;
 
       try {
-      const { to, subject, body } = JSON.parse(msg.content.toString());
+        const { to, subject, body } = JSON.parse(msg.content.toString());
 
-console.log("📧 Sending OTP to:", to);
+        console.log("📧 Sending OTP to:", to);
 
-const { data, error } = await resend.emails.send({
-  from: "onboarding@resend.dev",
-  to,
-  subject,
-  text: body,
-});
+        await transporter.sendMail({
+          from: process.env.MAIL_FROM,
+          to,
+          subject,
+          text: body,
+        });
 
-if (error) {
-  console.error("❌ Resend Error:", error);
-  channel.ack(msg); // Failed message ko bhi queue se hata do
-  return;
-}
-
-console.log("✅ Email Sent:", data);
-channel.ack(msg);
-
-        if (error) {
-          console.error("❌ Resend Error:", error);
-          return;
-        }
-
-        console.log("✅ Email Sent:", data);
+        console.log("✅ OTP Email Sent Successfully");
         channel.ack(msg);
       } catch (err) {
         console.error("❌ Failed to send OTP:", err);
+        channel.ack(msg);
       }
     });
   } catch (err) {
