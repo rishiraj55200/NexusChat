@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 import ChatSidebar from "@/components/ChatSidebar";
 import Loading from "@/components/Loading";
-import { chat_service, useAppData, User } from "@/context/AppContext";
+import { useAppData, User } from "@/context/AppContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -67,7 +67,7 @@ const ChatApp = () => {
     const token = Cookies.get("token");
     try {
       const { data } = await axios.get(
-        `${chat_service}/api/v1/message/${selectedUser}`,
+        `${process.env.NEXT_PUBLIC_CHAT_SERVICE}/api/v1/message/${selectedUser}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -147,7 +147,7 @@ const ChatApp = () => {
     try {
       const token = Cookies.get("token");
       const { data } = await axios.post(
-        `${chat_service}/api/v1/chat/new`,
+        `${process.env.NEXT_PUBLIC_CHAT_SERVICE}/api/v1/chat/new`,
         {
           userId: loggedInUser?._id,
           otherUserId: u._id,
@@ -201,7 +201,7 @@ const ChatApp = () => {
       }
 
       const { data } = await axios.post(
-        `${chat_service}/api/v1/message`,
+        `${process.env.NEXT_PUBLIC_CHAT_SERVICE}/api/v1/message`,
         formData,
         {
           headers: {
