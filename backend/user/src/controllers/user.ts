@@ -4,6 +4,7 @@ import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
 import { AuthenticatedRequest } from "../middleware/isAuth.js";
 import { User } from "../model/User.js";
+import bcrypt from "bcryptjs";
 
 export const loginUser = TryCatch(async (req, res) => {
   const { email } = req.body;
@@ -38,6 +39,74 @@ export const loginUser = TryCatch(async (req, res) => {
 
   res.status(200).json({
     message: "OTP sent to your mail",
+  });
+});
+
+export const registerWithPassword = TryCatch(async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    res.status(400).json({ message: "Name, email, and password are required" });
+    return;
+  }
+
+  let user = await User.findOne({ email });
+
+  if (user) {
+    res.status(400).json({ message: "User already exists. Please login." });
+    return;
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+  });
+
+  const token = generateToken(user);
+
+  res.status(201).json({
+    message: "Registration successful",
+    user,
+    token,
+  });
+});
+
+export const loginWithPassword = TryCatch(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).json({ message: "Email and password are required" });
+    return;
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  if (!user.password) {
+    res.status(400).json({ message: "This account doesn't have a password set. Please login with OTP." });
+    return;
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    res.status(400).json({ message: "Invalid credentials" });
+    return;
+  }
+
+  const token = generateToken(user);
+
+  res.status(200).json({
+    message: "Login successful",
+    user,
+    token,
   });
 });
 
